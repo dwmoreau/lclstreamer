@@ -54,12 +54,16 @@ channels = ["lcls-i"]
 [tool.pixi.feature.psana2]
 channels = ["lcls-ii"]
 
+[tool.pixi.feature.psana2nompi]
+channels = ["lcls-ii", "conda-forge/label/mpi-external"]
+
 [tool.pixi.pypi-dependencies]
 lclstreamer = { path = ".", editable = true }
 
 [tool.pixi.environments]
 psana1 = ["psana1"]
 psana2 = ["psana2"]
+psana2nompi = ["psana2nompi"]
 
 [tool.pixi.feature.psana1.activation]
 scripts = ["activation-psana1.sh"]
@@ -67,68 +71,33 @@ scripts = ["activation-psana1.sh"]
 [tool.pixi.feature.psana2.activation]
 scripts = ["activation-psana2.sh"]
 
+[tool.pixi.feature.psana2nompi.activation]
+scripts = ["activation-psana2.sh"]
+
 [tool.pixi.dependencies]
 python = ">=3.11,<3.14"
-openmpi = "*"
-mpi4py = "*"
-h5py = "*"
-hdf5plugin = ">=5.1.0"
+h5py = { version="*", channel="conda-forge" }
+hdf5plugin = { version="*", channel="conda-forge" }
+bitshuffle = { version="*", channel="conda-forge" }
 
 [tool.pixi.feature.psana1.dependencies]
 python = "3.11.*"
-psana = "==4.0.66"
+psana = { version="==4.0.66", channel="lcls-i" }
+mpi4py = { version="*", channel="conda-forge" }
 
 [tool.pixi.feature.psana2.dependencies]
 python = "3.13.*"
-psana = { version="==4.2.4", channel="lcls-ii" }
+psana = { version="==4.3.1", channel="lcls-ii" }
+mpi4py = { version="*", channel="conda-forge" }
+openmpi = { version="*", channel="conda-forge" }
+prometheus-cpp = {version="*", channel="conda-forge" }
 
-[dependency-groups]
-psana1 = [
-    "typer",
-    "numpy",
-    "pydantic",
-    "stream @ git+https://github.com/frobnitzem/stream.py",
-    "aiostream",
-    "pyyaml",
-    "pyzmq",
-    "pynng",
-    "sphinx",
-    "myst-parser",
-    "pydata-sphinx-theme",
-    "sphinx-click",
-    "sphinxcontrib-images",
-    "sphinxcontrib-mermaid",
-    "mypy",
-    "h5py-stubs",
-    "cbor",
-    "bitshuffle",
-    "pytest",
-    "types-PyYAML"
-]
-psana2 = [
-    "typer",
-    "numpy",
-    "pydantic",
-    "stream @ git+https://github.com/frobnitzem/stream.py",
-    "aiostream",
-    "pyyaml",
-    "pyzmq",
-    "pynng",
-    "sphinx",
-    "myst-parser",
-    "pydata-sphinx-theme",
-    "sphinx-click",
-    "sphinxcontrib-images",
-    "sphinxcontrib-mermaid",
-    "mypy",
-    "h5py-stubs",
-    "cbor",
-    "bitshuffle",
-    "pytest",
-    "types-PyYAML"
-]
-
-[tool.pixi.tasks]
+[tool.pixi.feature.psana2nompi.dependencies]
+python = "3.13.*"
+psana = { version="==4.3.1", channel="lcls-ii" }
+mpi4py = { version="*", channel="conda-forge" }
+openmpi = { version="*", channel="conda-forge/label/mpi-external" }
+prometheus-cpp = {version="*", channel="conda-forge" }
 
 [tool.ruff]
 exclude = [
