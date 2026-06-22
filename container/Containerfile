@@ -1,7 +1,7 @@
 FROM ghcr.io/prefix-dev/pixi:0.70.2 AS build
 WORKDIR /app
 ARG COMMIT
-ARG PSANA_VERSION=2nompi
+ARG PSANA_VERSION=2extmpi
 RUN apt-get update && apt-get install -y \
         git \ 
     --no-install-recommends \
@@ -21,7 +21,7 @@ RUN cd lclstreamer && pixi shell-hook -e psana${PSANA_VERSION} -s bash > /shell-
     && echo 'exec "$@"' >> /app/entrypoint.sh
 
 FROM ubuntu:26.04
-ARG PSANA_VERSION=2nompi
+ARG PSANA_VERSION=2extmpi
 
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive \
