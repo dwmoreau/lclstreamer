@@ -1,27 +1,4 @@
 {
-    "lsp": {
-        "basedpyright": {
-            "settings": {
-                "python": {
-                    // "pythonPath": ".pixi/envs/default/bin/python",
-                    // "venvPath": ".pixi/envs",
-                    "analysis": {
-                        "typeCheckingMode": "strict"
-                    }
-                }
-            }
-        },
-        "ruff": {
-            "initialization_options": {
-                "settings": {
-                    "lineLength": 88,
-                    "lint": {
-                        "extendSelect": ["I"]
-                    }
-                }
-            }
-        }
-    },
     "terminal": {
         "detect_venv": {
             "on": {
@@ -40,10 +17,6 @@
         "Python": {
             "language_servers": ["ruff", "ty", "basedpyright"],
             "format_on_save": "on",
-            "code_actions_on_format": {
-                "source.organizeImports.ruff": true,
-                "source.fixAll.ruff": false
-            }
         }
     }
 }
