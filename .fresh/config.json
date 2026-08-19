@@ -1,4 +1,9 @@
 {
+  "languages": {
+    "python": {
+      "format_on_save": true
+    }
+  },
   "lsp": {
     "python": [
       {

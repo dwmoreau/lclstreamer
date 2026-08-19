@@ -4,6 +4,9 @@ from ..utils.protocols import ProcessingPipelineProtocol
 from .crystallography.peaknet import (
     PeaknetPreprocessingPipeline as PeaknetPreprocessingPipeline,
 )
+from .crystallography.crystfel import (
+    CrystfelPreprocessingPipeline as CrystfelPreprocessingPipeline,
+)
 from .generic.generic import BatchProcessingPipeline as BatchProcessingPipeline
 
 

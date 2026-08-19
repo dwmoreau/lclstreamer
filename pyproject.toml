@@ -21,7 +21,10 @@ dependencies = [
     "h5py-stubs",
     "cbor",
     "pytest",
-    "types-PyYAML"
+    "types-PyYAML",
+    "msgpack",
+    "msgpack_numpy",
+    "msgpack-types"
 ]
 
 [build-system]
