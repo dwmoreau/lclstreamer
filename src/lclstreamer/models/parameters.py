@@ -77,11 +77,13 @@ EventSourceParameters = Annotated[
 
 ###### Data Sources #######
 
+
 class GenericRandomNumpyArrayParameters(_CustomBaseModel):
     """
     Parameters for the GenericRandomNumpyArray class
 
     """
+
     type: Literal["GenericRandomNumpyArray"]
     array_shape: int | tuple[int, ...]
     array_dtype: str
@@ -97,10 +99,12 @@ class GenericRandomNumpyArrayParameters(_CustomBaseModel):
             return (v,)
         return v
 
+
 class ConstValueParameters(_CustomBaseModel):
     """
     Parameters for ConstValue class
     """
+
     type: Literal["ConstValue"]
     value: int | float | list[int | float]
     dtype: str
@@ -108,15 +112,13 @@ class ConstValueParameters(_CustomBaseModel):
     @field_validator("value", mode="before")
     @classmethod
     def parse_value(cls, v: Any):
-        if isinstance(v, str): # "6," -> [6]
+        if isinstance(v, str):  # "6," -> [6]
             parts = [p.strip() for p in v.split(",") if p.strip()]
             if len(parts) == 1:
                 return int(parts[0]) if parts[0].isdigit() else float(parts[0])
-            return [
-                int(p) if p.isdigit() else float(p)
-                for p in parts
-            ]
+            return [int(p) if p.isdigit() else float(p) for p in parts]
         return v
+
 
 class _PsanaDetectorInterfaceParameters(_CustomBaseModel):
     psana_name: str
@@ -130,36 +132,47 @@ class _PsanaDetectorInterfaceParameters(_CustomBaseModel):
             )
         return self
 
+
 class Psana1DetectorInterfaceParameters(_PsanaDetectorInterfaceParameters):
     type: Literal["Psana1DetectorInterface"]
+
 
 class Psana2DetectorInterfaceParameters(_PsanaDetectorInterfaceParameters):
     type: Literal["Psana2DetectorInterface"]
     dtype: str | None = None
 
+
 class Psana2TimestampParameters(_CustomBaseModel):
     """
     Parameters for psana2 timestamp interface
     """
+
     type: Literal["Psana2Timestamp"]
+
 
 class Psana1TimestampParameters(_CustomBaseModel):
     """
     Parameters for psana1 timestamp interface
     """
+
     type: Literal["Psana1Timestamp"]
+
 
 class SourceIdentifierParameters(_CustomBaseModel):
     """
     Parameters for source identifier data source interface
     """
+
     type: Literal["SourceIdentifier"]
+
 
 class Psana2RunInfoParameters(_CustomBaseModel):
     """
     Parameters for run info data source interface
     """
+
     type: Literal["Psana2RunInfo"]
+
 
 DataSourceParameters = Annotated[
     Union[
@@ -236,8 +249,27 @@ class PeaknetPreprocessingPipelineParameters(_CustomBaseModel):
     num_channels: int = 1
 
 
+class CrystfelPreprocessingPipelineParameters(_CustomBaseModel):
+    """
+    Configuration parameters for the CrystFEL  Preprocessing Pipeline
+
+    This pipeline lays out the data in a format that is understood by the
+    CrystFEL Serial Crystalography Processing software.
+
+    Attributes:
+
+        type: Discriminator field, must be ``"CrystfelPreprocessingPipeline"``
+    """
+
+    type: Literal["CrystfelPreprocessingPipeline"]
+
+
 ProcessingPipelineParameters = Annotated[
-    Union[BatchProcessingPipelineParameters, PeaknetPreprocessingPipelineParameters],
+    Union[
+        BatchProcessingPipelineParameters,
+        PeaknetPreprocessingPipelineParameters,
+        CrystfelPreprocessingPipelineParameters,
+    ],
     Field(discriminator="type"),
 ]
 
@@ -320,8 +352,27 @@ class HDF5BinarySerializerParameters(_CustomBaseModel):
     fields: dict[str, str]
 
 
+class MsgpackBinarySerializerParameters(_CustomBaseModel):
+    """
+    Configuration parameters for the MsgPack binary serializer
+
+    This serializer encodes a batch of event data arrays into a MsgPack binary
+    object.
+
+    Attributes:
+
+        type: Discriminator field, must be ``"MsgpackBinarySerializerParametersBinarySerializer"``
+    """
+
+    type: Literal["MsgpackBinarySerializer"]
+
+
 DataSerializerParameters = Annotated[
-    Union[HDF5BinarySerializerParameters, SimplonBinarySerializerParameters],
+    Union[
+        HDF5BinarySerializerParameters,
+        SimplonBinarySerializerParameters,
+        MsgpackBinarySerializerParameters,
+    ],
     Field(discriminator="type"),
 ]
 
