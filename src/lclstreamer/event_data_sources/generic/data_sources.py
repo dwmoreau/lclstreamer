@@ -246,28 +246,32 @@ class BaseDetectorInterface(DataSourceProtocol):
         if extra_parameters["psana_fields"] is None:
             if ":" in self._detector_name:
                 # it is a PV
-                self._call_get_data.append((self._detector_name, detector_interface, self._get_callable_with_event))
+                self._call_get_data.append((name, detector_interface, self._get_callable_with_event))
             else:
                 log_error_and_exit(
                     f"Entry 'psana_fields' is not defined for data source {name}"
                 )
         else:
             fields: list[str] | str = extra_parameters["psana_fields"]
-            det_fields: list[str] = ([fields] if isinstance(fields, str) else fields)
-            det_fields = [f.split(".") for f in det_fields]
+            det_fields: list[str] = ([fields] if isinstance(fields, (str, tuple)) else fields)
 
             for psana_fields in det_fields:
                 data_caller: Any = None
-                base = detector_interface
-                psana_field: str = ".".join([self._detector_name, *psana_fields])
+                psana_field: str = None
+                alias: str = name
+                if "->" in psana_fields:
+                    psana_field, alias = [k.strip() for k in psana_fields.split("->")]
+                else:
+                    psana_field = psana_fields
 
-                for field in psana_fields:
+                base: Any = detector_interface
+                fields_list: list[str] = psana_field.split(".")
+                for field in fields_list:
                     # Find the full name of the function we will call
                     if hasattr(base, field):
                         base = getattr(base, field)
                     else:
                         log_error_and_exit(f"Detector {base} has no parameter {field}")
-
                 if callable(base):
                     # Check if bound method or not plus the number of args
                     arg_number = base.__code__.co_argcount - (1 if hasattr(base, "__self__") else 0)
@@ -278,9 +282,8 @@ class BaseDetectorInterface(DataSourceProtocol):
                 else:
                     data_caller = self._get_noncallable
 
-                data_caller = self._setup_special_fields(psana_fields, data_caller)
-
-                self._call_get_data.append((psana_field, base, data_caller))
+                data_caller = self._setup_special_fields(psana_field, data_caller)
+                self._call_get_data.append((alias, base, data_caller))
 
     def _setup_special_fields(self, psana_fields, data_caller):
         return data_caller

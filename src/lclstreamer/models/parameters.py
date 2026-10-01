@@ -130,6 +130,13 @@ class _PsanaDetectorInterfaceParameters(_CustomBaseModel):
             raise ValueError(
                 "psana_fields must be specified when psana_name is not a PV."
             )
+        if isinstance(self.psana_fields, list):
+            if len(self.psana_fields) > 1:
+                for field in self.psana_fields:
+                    if "->" not in field:
+                        raise ValueError(
+                            "When multiple psana_fields are provided, alias must be provided, example: raw.calib -> alias."
+                        )
         return self
 
 
