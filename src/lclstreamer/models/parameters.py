@@ -414,6 +414,9 @@ class BinaryDataStreamingDataHandlerParameters(_CustomBaseModel):
 
         buffer: buffer size, if set to 0 the OS default is used
 
+        linger: Time in milliseconds that closing the socket waits to send queued
+            messages. 0 (the default) discards them, -1 waits without limit
+
         role: Whether this node acts as the ZMQ ``"server"`` (binds) or
             ``"client"`` (connects). Defaults to ``"server"``
 
@@ -428,6 +431,7 @@ class BinaryDataStreamingDataHandlerParameters(_CustomBaseModel):
     urls: List[str]
     distribute: bool = False
     buffer: int = 0
+    linger: int = 0
     role: Literal["server", "client"] = "client"
     library: Literal["zmq"] = "zmq"
     socket_type: Literal["push"] = "push"
