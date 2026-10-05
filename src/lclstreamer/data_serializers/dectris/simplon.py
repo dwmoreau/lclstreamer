@@ -15,6 +15,7 @@ from numpy.typing import NDArray
 from ...models.parameters import (
     SimplonBinarySerializerParameters,
 )
+from ...processing_pipelines.common.data_storage import is_null_value
 from ...utils.logging import log_error_and_exit, log_info
 from ...utils.protocols import DataSerializerProtocol
 from ...utils.typing import StrFloatIntNDArray
@@ -56,22 +57,22 @@ class SimplonBinarySerializer(DataSerializerProtocol):
         self._spectrometer_source: str | None = parameters.spectrometer_source
 
     def _photon_wavelength(self, data: dict[str, StrFloatIntNDArray | None]) -> Any:
-        """The photon_wavelength PV in Angstrom (the PV reports nm), or 0 if unset"""
+        """The photon_wavelength PV in Angstrom (the PV reports nm), or 0 if missing"""
         if self._photon_wavelength_source is None:
             return 0
         block: StrFloatIntNDArray | None = data.get(self._photon_wavelength_source)
-        if block is None:
+        if block is None or is_null_value(block[-1]):
             return 0
         return block[-1] * 10.0
 
     def _spectrometer_fields(
         self, data: dict[str, StrFloatIntNDArray | None]
     ) -> dict[str, Any]:
-        """The spectrometer fields of an image message, or none if unset"""
+        """The spectrometer fields of an image message, or none if missing"""
         if self._spectrometer_source is None:
             return {}
         block: StrFloatIntNDArray | None = data.get(self._spectrometer_source)
-        if block is None:
+        if block is None or is_null_value(block[-1]):
             return {}
         spectrum: StrFloatIntNDArray = block[-1]
         compressed_spectrum: NDArray[numpy.uint8] = cast(
