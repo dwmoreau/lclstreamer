@@ -296,7 +296,7 @@ class SimplonBinarySerializerParameters(_CustomBaseModel):
         type: Discriminator field, must be ``"SimplonBinarySerializer"``
 
         data_source_to_serialize: Name of the data source whose array will be
-            compressed and embedded in each Simplon image message
+            embedded in each Simplon image message
 
         polarization_fraction: Fraction of linear polarization of the X-ray
             beam (between 0 and 1)

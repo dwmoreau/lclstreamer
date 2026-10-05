@@ -42,14 +42,14 @@ This Data Serializer class turns the data accumulated by LCLStreamer into a bina
 with the internal structure of a Simplon message. It follows version 1.8 of the Simplon
 specification published by Dectris.
 
-Each call to the serializer produces a Simplon image message containing the compressed
-detector frame for the latest event in the batch. When the last LCLStream worker
-processes the first batch, it additionally emits a Simplon start message with run and
-detector metadata. At the end of the stream, the last worker emits a Simplon end
+Each call to the serializer produces a Simplon image message containing the detector
+frame for the latest event in the batch. When the last LCLStream worker processes the
+first batch, it additionally emits a Simplon start message with run and detector
+metadata. At the end of the stream, the last worker emits a Simplon end
 message. Each message is a CBOR-encoded dictionary whose `type` entry is `start`,
 `image` or `end`, and which identifies the run with `run_id`.
 
-The serializer uses bitshuffle + LZ4 compression for the detector frame data.
+The detector frame and spectrum are sent uncompressed.
 
 * The following data sources must be present in the `data_sources` section of the
   configuration file when using this serializer: `timestamp`, `detector_data`,
@@ -65,7 +65,7 @@ The serializer uses bitshuffle + LZ4 compression for the detector frame data.
 ### *Configuration Parameters for SimplonBinarySerializer*
 
 * `data_source_to_serialize` (str): The name of the data source whose array is 
-  compressed and embedded in each Simplon image message. This name must correspond
+  embedded in each Simplon image message. This name must correspond
   to a key defined in the `data_sources` section of the configuration file.
   Example: `detector_data`
 
@@ -96,6 +96,6 @@ The serializer uses bitshuffle + LZ4 compression for the detector frame data.
   Example: `photon_wavelength`
 
 * `spectrometer_source` (str): This parameter is optional. The data key of a spectrometer
-  array. The array is compressed like the detector frame and sent in each image message
-  as `spectrometer_compressed_data`, with `spectrometer_dtype` and `spectrometer_shape`.
+  array, sent in each image message as `spectrometer_data`, with `spectrometer_dtype`
+  and `spectrometer_shape`.
   It is left out of an event whose reading is missing. Example: `spectrometer`

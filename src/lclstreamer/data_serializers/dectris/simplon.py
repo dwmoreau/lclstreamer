@@ -3,9 +3,6 @@ from time import time
 from typing import Any, cast
 
 import numpy
-from bitshuffle import (  # pyright: ignore[reportMissingTypeStubs]
-    compress_lz4,  # pyright: ignore[reportUnknownVariableType]
-)
 from cbor import (  # pyright: ignore[reportMissingTypeStubs]
     dumps,  # pyright: ignore[reportUnknownVariableType]
 )
@@ -75,11 +72,8 @@ class SimplonBinarySerializer(DataSerializerProtocol):
         if block is None or is_null_value(block[-1]):
             return {}
         spectrum: StrFloatIntNDArray = block[-1]
-        compressed_spectrum: NDArray[numpy.uint8] = cast(
-            NDArray[numpy.uint8], compress_lz4(spectrum, block_size=2**12)
-        )
         return {
-            "spectrometer_compressed_data": compressed_spectrum.tobytes(),
+            "spectrometer_data": spectrum.tobytes(),
             "spectrometer_dtype": str(spectrum.dtype),
             "spectrometer_shape": "x".join(map(str, spectrum.shape)),
         }
@@ -152,7 +146,6 @@ class SimplonBinarySerializer(DataSerializerProtocol):
                                 "data_collection_rate": self._data_rate,
                                 "image_dtype": str(array.dtype),
                                 "shape": "x".join(map(str, array.shape)),
-                                "algorithm": "bitshuffle-lz4",
                                 "detector": {
                                     "name": self._detector_name,
                                     "id": data["jungfrau._detid"][-1],
@@ -178,10 +171,6 @@ class SimplonBinarySerializer(DataSerializerProtocol):
             # .item(): cbor cannot encode the numpy float32 scalar of a float32 frame
             array_sum: float | int = array.sum().item()
 
-            compressed_data: NDArray[numpy.uint8] = cast(
-                NDArray[numpy.uint8], compress_lz4(array, block_size=2**12)
-            )
-
             beam_data_dict: dict[str, Any] = {}
             try:
                 beam_data_dict = {
@@ -202,7 +191,7 @@ class SimplonBinarySerializer(DataSerializerProtocol):
             message: dict[str, Any] = {
                 "type": "image",
                 "run_id": run_number,
-                "compressed_data": compressed_data.tobytes(),
+                "data": array.tobytes(),
                 **beam_data_dict,
                 **self._spectrometer_fields(data),
                 "image_dtype": str(array.dtype),
