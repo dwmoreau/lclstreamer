@@ -52,6 +52,36 @@ class SimplonBinarySerializer(DataSerializerProtocol):
         self._node_rank: int = MPI.COMM_WORLD.Get_rank()
         self._node_pool_size: int = MPI.COMM_WORLD.Get_size()
         self._rank_message_count: int = 1
+        self._photon_wavelength_source: str | None = parameters.photon_wavelength_source
+        self._spectrometer_source: str | None = parameters.spectrometer_source
+
+    def _photon_wavelength(self, data: dict[str, StrFloatIntNDArray | None]) -> Any:
+        """The photon_wavelength PV in Angstrom (the PV reports nm), or 0 if unset"""
+        if self._photon_wavelength_source is None:
+            return 0
+        block: StrFloatIntNDArray | None = data.get(self._photon_wavelength_source)
+        if block is None:
+            return 0
+        return block[-1] * 10.0
+
+    def _spectrometer_fields(
+        self, data: dict[str, StrFloatIntNDArray | None]
+    ) -> dict[str, Any]:
+        """The spectrometer fields of an image message, or none if unset"""
+        if self._spectrometer_source is None:
+            return {}
+        block: StrFloatIntNDArray | None = data.get(self._spectrometer_source)
+        if block is None:
+            return {}
+        spectrum: StrFloatIntNDArray = block[-1]
+        compressed_spectrum: NDArray[numpy.uint8] = cast(
+            NDArray[numpy.uint8], compress_lz4(spectrum, block_size=2**12)
+        )
+        return {
+            "spectrometer_compressed_data": compressed_spectrum.tobytes(),
+            "spectrometer_dtype": str(spectrum.dtype),
+            "spectrometer_shape": "x".join(map(str, spectrum.shape)),
+        }
 
     def __call__(
         self, stream: Iterator[dict[str, StrFloatIntNDArray | None]]
@@ -167,12 +197,15 @@ class SimplonBinarySerializer(DataSerializerProtocol):
                 }
             except KeyError as e:
                 log_info(f"Field: {e.args[0]} not found in data_sources. Skipping.")
+            if self._photon_wavelength_source is not None:
+                beam_data_dict["photon_wavelength"] = self._photon_wavelength(data)
 
             message: dict[str, Any] = {
                 "type": "image",
                 "run_id": run_number,
                 "compressed_data": compressed_data.tobytes(),
                 **beam_data_dict,
+                **self._spectrometer_fields(data),
                 "image_dtype": str(array.dtype),
                 "sum": array_sum,
                 "message_id": self._node_rank * 10000 + self._rank_message_count,
