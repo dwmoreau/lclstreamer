@@ -88,3 +88,14 @@ The serializer uses bitshuffle + LZ4 compression for the detector frame data.
 * `detector_type` (str): A string identifying the model or type of the main detector
   that generates the data encoded in the Simplon image messages. This value is
   included in the Simplon start message. Example: `Jungfrau 1M`
+
+* `photon_wavelength_source` (str): This parameter is optional. The data key of the
+  photon wavelength PV, reported in nm. Its value is sent in Angstrom as
+  `photon_wavelength` in each image message. When the parameter is not set,
+  `photon_wavelength` is 0 and is sent only with the beam data.
+  Example: `photon_wavelength`
+
+* `spectrometer_source` (str): This parameter is optional. The data key of a spectrometer
+  array. The array is compressed like the detector frame and sent in each image message
+  as `spectrometer_compressed_data`, with `spectrometer_dtype` and `spectrometer_shape`.
+  Example: `spectrometer`
