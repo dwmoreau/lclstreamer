@@ -106,17 +106,15 @@ class SimplonBinarySerializer(DataSerializerProtocol):
 
         data: dict[str, StrFloatIntNDArray | None]
         for data in stream:
-            try:
-                if (data_block := data[self._data_source_to_serialize]) is not None:
-                    array: StrFloatIntNDArray = data_block[-1]
-                else:
-                    continue
-            except KeyError:
-                log_error_and_exit(
-                    f"The {self._data_source_to_serialize} data source, that the "
-                    "SimplonBinarySerializer is supposed to serialize, cannot be found in"
-                    "the data"
-                )
+            # Absent from the batch when the frame has been missing from every event so far
+            if (data_block := data.get(self._data_source_to_serialize)) is None:
+                log_info(f"Skipping event missing {self._data_source_to_serialize}")
+                continue
+            array: StrFloatIntNDArray = data_block[-1]
+
+            if is_null_value(array):
+                log_info(f"Skipping event missing {self._data_source_to_serialize}")
+                continue
 
             if not (
                 numpy.issubdtype(array.dtype, numpy.integer)
