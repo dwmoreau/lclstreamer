@@ -96,7 +96,7 @@ class SimplonBinarySerializer(DataSerializerProtocol):
                     "or float, as required by the SimplonBinarySerializer"
                 )
 
-            run_number: str = data["run_number"][-1]
+            run_number: str = data["run_info_run_number"][-1]
 
             if self._node_rank == self._node_pool_size - 1:
                 if must_send_first_message:
@@ -110,10 +110,10 @@ class SimplonBinarySerializer(DataSerializerProtocol):
                                     {
                                         "type": "start",
                                         "run_number": run_number,
-                                        "start_time": data["run_timestamp"][-1],
+                                        "start_time": data["run_info_run_timestamp"][-1],
                                         "duration": "N/A",
-                                        "beamline": data["source_identifier"][-1][3][4:7].upper(),
-                                        "experiment": data["experiment"][-1],
+                                        "beamline": data["run_info_source_identifier"][-1][3][4:7].upper(),
+                                        "experiment": data["run_info_experiment"][-1],
                                         "beam_type": "X-ray",
                                         "polarization": {
                                             "fraction": self._polarization.get(
@@ -129,13 +129,13 @@ class SimplonBinarySerializer(DataSerializerProtocol):
                                         "algorithm": "bitshuffle-lz4",
                                         "detector": {
                                             "name": self._detector_name,
-                                            "id": data["jungfrau._detid"][-1],
+                                            "id": data["DetectorID"][-1],
                                             "type": self._detector_type,
-                                            "geometry": data["jungfrau.raw._det_geotxt_default"][-1],
+                                            "geometry": data["DetectorGeometry"][-1],
                                             "pixel_coords": numpy.array(
-                                                data["jungfrau.raw._pixel_coords"][-1]
+                                                data["PixelCoordinates"][-1]
                                             ).tobytes()
-                                            if "jungfrau.raw._pixel_coords" in data else "",
+                                            if "PixelCoordinates" in data else "",
                                             "material": "???",
                                             "thickness": "???",
                                         },
@@ -160,12 +160,12 @@ class SimplonBinarySerializer(DataSerializerProtocol):
             try:
                 beam_data_dict = {
                     "beam_direction": {
-                        "angle_x": data["ebeamh.raw.ebeamUndAngX"][-1],
-                        "angle_y": data["ebeamh.raw.ebeamUndAngY"][-1],
-                        "position_x": data["ebeamh.raw.ebeamUndPosX"][-1],
-                        "position_y": data["ebeamh.raw.ebeamUndPosY"][-1],
+                        "angle_x": data["AngleX"][-1],
+                        "angle_y": data["AngleY"][-1],
+                        "position_x": data["PositionX"][-1],
+                        "position_y": data["PositionY"][-1],
                     },
-                    "photon_energy": data["ebeamh.raw.ebeamL3Energy"][-1],
+                    "photon_energy": data["PhotonEnergy"][-1],
                     "photon_wavelength": 0,  # data["photon_wavelength"][-1]
                 }
             except KeyError as e:
