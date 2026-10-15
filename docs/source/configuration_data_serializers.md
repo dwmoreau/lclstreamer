@@ -59,7 +59,10 @@ The detector frame and spectrum are sent uncompressed.
   `DetectorGeometry` data keys, and the beam data from the `AngleX`, `AngleY`,
   `PositionX`, `PositionY` and `PhotonEnergy` data keys. Use `->` aliases in
   `psana_fields` to give the fields these names (see
-  `examples/lclstreamer-psana2-simplon.yml`). The beam data is optional.
+  `examples/lclstreamer-psana2-simplon.yml`). The beam data is optional: the beam
+  direction (`AngleX`, `AngleY`, `PositionX`, `PositionY`) and the photon energy are
+  each sent when present, and the photon energy is left out of an event whose reading
+  is missing.
 
 ### *Configuration Parameters for SimplonBinarySerializer*
 
@@ -91,7 +94,8 @@ The detector frame and spectrum are sent uncompressed.
 * `photon_wavelength_source` (str): This parameter is optional. The data key of the
   photon wavelength PV, reported in nm. Its value is sent in Angstrom as
   `photon_wavelength` in each image message, or 0 when the reading is missing. When the
-  parameter is not set, `photon_wavelength` is 0 and is sent only with the beam data.
+  parameter is not set, `photon_wavelength` is 0 and is sent only with the photon
+  energy.
   Example: `photon_wavelength`
 
 * `spectrometer_source` (str): This parameter is optional. The data key of a spectrometer

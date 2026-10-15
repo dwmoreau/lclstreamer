@@ -171,20 +171,18 @@ class SimplonBinarySerializer(DataSerializerProtocol):
             # .item(): cbor cannot encode the numpy float32 scalar of a float32 frame
             array_sum: float | int = array.sum().item()
 
+            # The beam direction and the photon energy are optional independently
             beam_data_dict: dict[str, Any] = {}
-            try:
-                beam_data_dict = {
-                    "beam_direction": {
-                        "angle_x": data["AngleX"][-1],
-                        "angle_y": data["AngleY"][-1],
-                        "position_x": data["PositionX"][-1],
-                        "position_y": data["PositionY"][-1],
-                    },
-                    "photon_energy": data["PhotonEnergy"][-1],
-                    "photon_wavelength": 0,  # data["photon_wavelength"][-1]
+            if all(key in data for key in ("AngleX", "AngleY", "PositionX", "PositionY")):
+                beam_data_dict["beam_direction"] = {
+                    "angle_x": data["AngleX"][-1],
+                    "angle_y": data["AngleY"][-1],
+                    "position_x": data["PositionX"][-1],
+                    "position_y": data["PositionY"][-1],
                 }
-            except KeyError as e:
-                log_info(f"Field: {e.args[0]} not found in data_sources. Skipping.")
+            if "PhotonEnergy" in data and not is_null_value(data["PhotonEnergy"][-1]):
+                beam_data_dict["photon_energy"] = data["PhotonEnergy"][-1]
+                beam_data_dict["photon_wavelength"] = 0
             if self._photon_wavelength_source is not None:
                 beam_data_dict["photon_wavelength"] = self._photon_wavelength(data)
 
